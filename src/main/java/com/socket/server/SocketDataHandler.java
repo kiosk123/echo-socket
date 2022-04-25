@@ -40,6 +40,34 @@ public class SocketDataHandler implements Runnable {
                 String bodyContent = getBodyContent(CONTENT_LENGTH);
                 System.out.println(bodyContent);
 
+                /**
+                 * send echo data to client
+                 */
+                byte[] contentBytes = bodyContent.getBytes(Charset.forName("EUC-KR"));
+            
+                int headerLength = CommonConstants.CONTENT_HEADER_LENGTH;
+                byte[] headerBytes = String.format("%0" + headerLength + "d", contentBytes.length).getBytes();
+                
+                int sendLength = headerBytes.length + contentBytes.length;
+                byte[] sendBytes = new byte[sendLength];
+    
+                System.arraycopy(headerBytes, 0, sendBytes, 0, headerBytes.length);
+                System.arraycopy(contentBytes, 0, sendBytes, headerBytes.length, contentBytes.length);
+    
+                try {
+                    out.write(sendBytes);
+                    out.flush();
+                } catch (IOException e) {
+                    System.out.println("While sending data from server to client, error occured!!!");
+                    e.printStackTrace();
+    
+                    if (in != null) {try { in.close(); } catch (IOException e2) {}}
+                    if (out != null) {try { out.close(); } catch (IOException e2) {}}
+                    if (socket != null) {try { socket.close(); } catch (IOException e2) {}}
+    
+                    System.out.println("client finished!");
+                    break;
+                }
 
 
             } catch (IOException e) {
@@ -49,6 +77,8 @@ public class SocketDataHandler implements Runnable {
                 if (in != null) {try { in.close(); } catch (IOException e2) {}}
                 if (out != null) {try { out.close(); } catch (IOException e2) {}}
                 if (socket != null) {try { socket.close(); } catch (IOException e2) {}}
+
+                break;
             }
         }
     }
