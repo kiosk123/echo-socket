@@ -96,6 +96,7 @@ public class SocketDataHandler implements Runnable {
             System.arraycopy(buf, 0, header, headerLength, readLength);
             headerLength += readLength;
         }
+        
         String headerLenStr = new String(header, Charset.forName("EUC-KR"));
         return Integer.parseInt(headerLenStr);
     }

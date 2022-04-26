@@ -41,7 +41,7 @@ public class SocketClient implements Runnable {
     public void run() {
         while (true) {
             sc = new Scanner(System.in);
-            logger.info("input sending messsage : ");
+            System.out.print("input sending messsage : ");
             
             String sendMessage = sc.nextLine();
             logger.info("sending message : " + sendMessage);
@@ -87,7 +87,7 @@ public class SocketClient implements Runnable {
             } catch (IOException e) {
 
                 logger.error("While recieveing data from server, error occured!!!", e);
-                
+
                 if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
                 if (in != null) {try { in.close(); } catch (IOException e2) {}}
                 if (out != null) {try { out.close(); } catch (IOException e2) {}}
