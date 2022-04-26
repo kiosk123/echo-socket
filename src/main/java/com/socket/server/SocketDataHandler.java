@@ -60,18 +60,11 @@ public class SocketDataHandler implements Runnable {
                 System.arraycopy(headerBytes, 0, sendBytes, 0, headerBytes.length);
                 System.arraycopy(contentBytes, 0, sendBytes, headerBytes.length, contentBytes.length);
     
-                try {
-                    out.write(sendBytes);
-                    out.flush();
-                } catch (IOException e) {
-                    logger.error("While sending data from server to client, error occured!!!", e);
-                    CommonUtil.socketStreamClose(socket, in, out);
-                    logger.error("client finished!");
-                    break;
-                }
+                out.write(sendBytes);
+                out.flush();
 
             } catch (IOException e) {
-                logger.error("while proccessing data, IOException occured !!", e);
+                logger.error("while handling data, IOException occured !!", e);
                 CommonUtil.socketStreamClose(socket, in, out);
                 break;
             }
