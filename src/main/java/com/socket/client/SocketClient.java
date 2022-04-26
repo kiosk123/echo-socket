@@ -39,63 +39,56 @@ public class SocketClient implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            sc = new Scanner(System.in);
-            System.out.print("input sending messsage : ");
+        String sendMessage = sc.nextLine();
+        logger.info("sending message : " + sendMessage);
+
+        byte[] contentBytes = sendMessage.getBytes(Charset.forName("EUC-KR"));
+        
+        int headerLength = CommonConstants.CONTENT_HEADER_LENGTH;
+        byte[] headerBytes = String.format("%0" + headerLength + "d", contentBytes.length).getBytes();
+        
+        int sendLength = headerBytes.length + contentBytes.length;
+        byte[] sendBytes = new byte[sendLength];
+
+        System.arraycopy(headerBytes, 0, sendBytes, 0, headerBytes.length);
+        System.arraycopy(contentBytes, 0, sendBytes, headerBytes.length, contentBytes.length);
+
+        try {
+            out.write(sendBytes);
+            out.flush();
+        } catch (IOException e) {
+            logger.error("While sending data to server, error occured!!!", e);
+
+            if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
+            if (in != null) {try { in.close(); } catch (IOException e2) {}}
+            if (out != null) {try { out.close(); } catch (IOException e2) {}}
+            if (client != null) {try { client.close(); } catch (IOException e2) {}}
+
+            logger.error("client finished!");
+        }
+
+        try {
+            byte[] echoHeader = new byte[CommonConstants.CONTENT_HEADER_LENGTH];
+            int echoHeaderLength = getHeader(echoHeader);
+            logger.info("****************** echo from server **********************");
             
-            String sendMessage = sc.nextLine();
-            logger.info("sending message : " + sendMessage);
-
-            byte[] contentBytes = sendMessage.getBytes(Charset.forName("EUC-KR"));
+            logger.info("****************** echo header length ********************");
+            logger.info("header length : {}", echoHeaderLength);
             
-            int headerLength = CommonConstants.CONTENT_HEADER_LENGTH;
-            byte[] headerBytes = String.format("%0" + headerLength + "d", contentBytes.length).getBytes();
-            
-            int sendLength = headerBytes.length + contentBytes.length;
-            byte[] sendBytes = new byte[sendLength];
+            logger.info("****************** echo body content *********************");
+            String echoContent = getBodyContent(echoHeaderLength);
+            logger.info(echoContent);
+            System.out.println();
+        } catch (IOException e) {
 
-            System.arraycopy(headerBytes, 0, sendBytes, 0, headerBytes.length);
-            System.arraycopy(contentBytes, 0, sendBytes, headerBytes.length, contentBytes.length);
+            logger.error("While recieveing data from server, error occured!!!", e);
 
-            try {
-                out.write(sendBytes);
-                out.flush();
-            } catch (IOException e) {
-                logger.error("While sending data to server, error occured!!!", e);
+            if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
+            if (in != null) {try { in.close(); } catch (IOException e2) {}}
+            if (out != null) {try { out.close(); } catch (IOException e2) {}}
+            if (client != null) {try { client.close(); } catch (IOException e2) {}}
 
-                if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
-                if (in != null) {try { in.close(); } catch (IOException e2) {}}
-                if (out != null) {try { out.close(); } catch (IOException e2) {}}
-                if (client != null) {try { client.close(); } catch (IOException e2) {}}
-
-                logger.error("client finished!");
-                break;
-            }
-
-            try {
-                byte[] echoHeader = new byte[CommonConstants.CONTENT_HEADER_LENGTH];
-                int echoHeaderLength = getHeader(echoHeader);
-                logger.info("****************** echo from server **********************");
-                
-                logger.info("****************** echo header length ********************");
-                logger.info("header length : {}", echoHeaderLength);
-                
-                logger.info("****************** echo body content *********************");
-                String echoContent = getBodyContent(echoHeaderLength);
-                logger.info(echoContent);
-                System.out.println();
-            } catch (IOException e) {
-
-                logger.error("While recieveing data from server, error occured!!!", e);
-
-                if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
-                if (in != null) {try { in.close(); } catch (IOException e2) {}}
-                if (out != null) {try { out.close(); } catch (IOException e2) {}}
-                if (client != null) {try { client.close(); } catch (IOException e2) {}}
-
-                logger.error("client finished!");
-                break;
-            }
+            logger.error("client finished!");
         }
     }
 
