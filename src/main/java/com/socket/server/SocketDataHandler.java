@@ -9,19 +9,24 @@ import java.nio.charset.Charset;
 import com.common.CommonConstants;
 import com.socket.exception.ApplicationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SocketDataHandler implements Runnable {
 
+    private static Logger logger = LoggerFactory.getLogger(SocketDataHandler.class);
     private Socket socket;
     private InputStream in;
     private OutputStream out;
 
     public SocketDataHandler(Socket socket) throws ApplicationException {
+
         this.socket = socket;
         try {
             in = socket.getInputStream();
             out = socket.getOutputStream();
         } catch (IOException e) {
-            System.out.println("broken input or output stream");
+            logger.error("broken input or output stream", e);
             throw new ApplicationException(e);
         }
     }
@@ -33,12 +38,12 @@ public class SocketDataHandler implements Runnable {
 
             try {
                 int CONTENT_LENGTH = getHeader(header);
-                System.out.println("************************ header length ************************");
-                System.out.println("reading content length is " + CONTENT_LENGTH);
+                logger.info("************************ header length ************************");
+                logger.info("reading content length is {}", CONTENT_LENGTH);
 
-                System.out.println("************************ body conetent ************************");
+                logger.info("************************ body conetent ************************");
                 String bodyContent = getBodyContent(CONTENT_LENGTH);
-                System.out.println(bodyContent);
+                logger.info(bodyContent);
 
                 /**
                  * send echo data to client
@@ -58,21 +63,19 @@ public class SocketDataHandler implements Runnable {
                     out.write(sendBytes);
                     out.flush();
                 } catch (IOException e) {
-                    System.out.println("While sending data from server to client, error occured!!!");
-                    e.printStackTrace();
+                    logger.error("While sending data from server to client, error occured!!!", e);
     
                     if (in != null) {try { in.close(); } catch (IOException e2) {}}
                     if (out != null) {try { out.close(); } catch (IOException e2) {}}
                     if (socket != null) {try { socket.close(); } catch (IOException e2) {}}
     
-                    System.out.println("client finished!");
+                    logger.error("client finished!");
                     break;
                 }
 
 
             } catch (IOException e) {
-                System.out.println("while proccessing data, IOException occured !!");
-                e.printStackTrace();
+                logger.error("while proccessing data, IOException occured !!", e);
                 
                 if (in != null) {try { in.close(); } catch (IOException e2) {}}
                 if (out != null) {try { out.close(); } catch (IOException e2) {}}

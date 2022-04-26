@@ -6,16 +6,21 @@ import java.net.Socket;
 
 import com.socket.exception.ApplicationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SocketServer implements Runnable {
+
+    private final static Logger logger = LoggerFactory.getLogger(SocketServer.class);
+
     ServerSocket serverSocket;
 
     public SocketServer(int port) throws ApplicationException {
         try {
             serverSocket = new ServerSocket(port);
-            System.out.println("creating server socket success. port number : " + port);
+            logger.info("creating server socket success. port number : {}", port);
         } catch (IOException e) {
-            System.out.println("creating server socket failed !!!");
-            e.printStackTrace();
+            logger.error("creating server socket failed !!!", e);
             throw new ApplicationException(e);
         }
     }
@@ -24,19 +29,18 @@ public class SocketServer implements Runnable {
     public void run() {
         while (true) {
             try {
-                System.out.println("waiting...");
+                logger.info("waiting...");
                 Socket socket = serverSocket.accept();
 
-                System.out.println("created socket!");
+                logger.info("created socket!");
                 SocketDataHandler handler = new SocketDataHandler(socket);
                 new Thread(handler).start();
 
             } catch (IOException e) {
-                System.out.println("server socket accepting exception occurred !!!");
+                logger.error("server socket accepting exception occurred !!!", e);
                 break;
             } catch (ApplicationException e) {
-                System.out.println("application exception occured !!!");
-                e.printStackTrace();
+                logger.error("application exception occured !!!", e);
             }
         }
     }

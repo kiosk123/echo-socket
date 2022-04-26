@@ -10,23 +10,29 @@ import java.util.Scanner;
 import com.common.CommonConstants;
 import com.socket.exception.ApplicationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SocketClient implements Runnable {
+
+    private final static Logger logger = LoggerFactory.getLogger(SocketClient.class);
+
     private Socket client;
     private InputStream in;
     private OutputStream out;
     private Scanner sc;
 
     public SocketClient(String host, int port) throws ApplicationException {
+
         try {
             client = new Socket(host, port);
-            System.out.println("host: " + host + " port: " + port + " connection success.");
+            logger.info("host: {} port: {} connection success.", host, port);
 
             in = client.getInputStream();
             out = client.getOutputStream();
 
         } catch (IOException e) {
-            System.out.println("connecting server failed !!");
-            e.printStackTrace();
+            logger.info("connecting server failed !!", e);
             throw new ApplicationException(e);
         }
     }
@@ -35,10 +41,10 @@ public class SocketClient implements Runnable {
     public void run() {
         while (true) {
             sc = new Scanner(System.in);
-            System.out.print("input sending messsage : ");
+            logger.info("input sending messsage : ");
             
             String sendMessage = sc.nextLine();
-            System.out.println("sending message : " + sendMessage);
+            logger.info("sending message : " + sendMessage);
 
             byte[] contentBytes = sendMessage.getBytes(Charset.forName("EUC-KR"));
             
@@ -55,40 +61,39 @@ public class SocketClient implements Runnable {
                 out.write(sendBytes);
                 out.flush();
             } catch (IOException e) {
-                System.out.println("While sending data to server, error occured!!!");
-                e.printStackTrace();
+                logger.error("While sending data to server, error occured!!!", e);
 
                 if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
                 if (in != null) {try { in.close(); } catch (IOException e2) {}}
                 if (out != null) {try { out.close(); } catch (IOException e2) {}}
                 if (client != null) {try { client.close(); } catch (IOException e2) {}}
 
-                System.out.println("client finished!");
+                logger.error("client finished!");
                 break;
             }
 
             try {
                 byte[] echoHeader = new byte[CommonConstants.CONTENT_HEADER_LENGTH];
                 int echoHeaderLength = getHeader(echoHeader);
-                System.out.println("****************** echo from server **********************");
+                logger.info("****************** echo from server **********************");
                 
-                System.out.println("****************** echo header length ********************");
-                System.out.println("header length : " + echoHeaderLength);
+                logger.info("****************** echo header length ********************");
+                logger.info("header length : {}", echoHeaderLength);
                 
-                System.out.println("****************** echo body content *********************");
+                logger.info("****************** echo body content *********************");
                 String echoContent = getBodyContent(echoHeaderLength);
-                System.out.println(echoContent);
+                logger.info(echoContent);
                 System.out.println();
             } catch (IOException e) {
 
-                System.out.println("While recieveing data from server, error occured!!!");
-                e.printStackTrace();
+                logger.error("While recieveing data from server, error occured!!!", e);
+                
                 if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
                 if (in != null) {try { in.close(); } catch (IOException e2) {}}
                 if (out != null) {try { out.close(); } catch (IOException e2) {}}
                 if (client != null) {try { client.close(); } catch (IOException e2) {}}
 
-                System.out.println("client finished!");
+                logger.error("client finished!");
                 break;
             }
         }
