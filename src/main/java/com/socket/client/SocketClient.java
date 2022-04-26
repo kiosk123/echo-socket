@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
-import java.util.Scanner;
 
 import com.common.CommonConstants;
 import com.common.CommonUtil;
@@ -22,6 +21,7 @@ public class SocketClient implements Runnable {
     private Socket client;
     private InputStream in;
     private OutputStream out;
+    private String sendMessageParam;
 
     public SocketClient(String host, int port) throws ApplicationException {
 
@@ -38,22 +38,21 @@ public class SocketClient implements Runnable {
         }
     }
 
+    public SocketClient(String host, int port, String sendMessageParam) throws ApplicationException {
+        this(host, port);
+        this.sendMessageParam = sendMessageParam;
+    }
+
     @Override
     public void run() {
 
-        String sendMessage = MESSAGE_CONSTANT;
+        String sendMessage = sendMessageParam;
+        if (!CommonUtil.hasText(sendMessage)) {
+            sendMessage = MESSAGE_CONSTANT;
+        }
+
         logger.info("sending message : " + sendMessage);
-
-        byte[] contentBytes = sendMessage.getBytes(Charset.forName("EUC-KR"));
-        
-        int headerLength = CommonConstants.CONTENT_HEADER_LENGTH;
-        byte[] headerBytes = String.format("%0" + headerLength + "d", contentBytes.length).getBytes();
-        
-        int sendLength = headerBytes.length + contentBytes.length;
-        byte[] sendBytes = new byte[sendLength];
-
-        System.arraycopy(headerBytes, 0, sendBytes, 0, headerBytes.length);
-        System.arraycopy(contentBytes, 0, sendBytes, headerBytes.length, contentBytes.length);
+        byte[] sendBytes = sendMessage.getBytes(Charset.forName("EUC-KR"));
 
         try {
             out.write(sendBytes);

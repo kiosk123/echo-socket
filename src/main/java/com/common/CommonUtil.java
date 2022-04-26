@@ -11,4 +11,9 @@ public class CommonUtil {
         if (out != null) {try { out.close(); } catch (IOException e2) {}}
         if (socket != null) {try { socket.close(); } catch (IOException e2) {}}
     }
+
+    public static boolean hasText(String value) {
+        if (value == null || value.trim().length() == 0) return false;
+        return true;
+    }
 }
