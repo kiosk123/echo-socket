@@ -34,40 +34,39 @@ public class SocketDataHandler implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            try {
-                int contentLength = getHeader(CommonConstants.CONTENT_HEADER_LENGTH);
-                logger.info("************************ header length ************************");
-                logger.info("reading content length is {}", contentLength);
-
-                logger.info("************************ body conetent ************************");
-                String bodyContent = getBodyContent(contentLength);
-                logger.info(bodyContent);
-
-                /**
-                 * send echo data to client
-                 */
-                byte[] contentBytes = bodyContent.getBytes(Charset.forName("EUC-KR"));
+        try {
+            int contentLength = getHeader(CommonConstants.CONTENT_HEADER_LENGTH);
+            logger.info("************************ header length ************************");
+            logger.info("reading content length is {}", contentLength);
             
-                int headerLength = CommonConstants.CONTENT_HEADER_LENGTH;
-                byte[] headerBytes = String.format("%0" + headerLength + "d", contentBytes.length).getBytes(Charset.forName("EUC-KR"));
+            logger.info("************************ body conetent ************************");
+            String bodyContent = getBodyContent(contentLength);
+            logger.info(bodyContent);
+            
+            /**
+             * send echo data to client
+             */
+            byte[] contentBytes = bodyContent.getBytes(Charset.forName("EUC-KR"));
+            
+            int headerLength = CommonConstants.CONTENT_HEADER_LENGTH;
+            byte[] headerBytes = String.format("%0" + headerLength + "d", contentBytes.length).getBytes(Charset.forName("EUC-KR"));
+            
+            int sendLength = headerBytes.length + contentBytes.length;
+            byte[] sendBytes = new byte[sendLength];
+            
+            System.arraycopy(headerBytes, 0, sendBytes, 0, headerBytes.length);
+            System.arraycopy(contentBytes, 0, sendBytes, headerBytes.length, contentBytes.length);
+            
+            out.write(sendBytes);
+            out.flush();
                 
-                int sendLength = headerBytes.length + contentBytes.length;
-                byte[] sendBytes = new byte[sendLength];
-    
-                System.arraycopy(headerBytes, 0, sendBytes, 0, headerBytes.length);
-                System.arraycopy(contentBytes, 0, sendBytes, headerBytes.length, contentBytes.length);
-    
-                out.write(sendBytes);
-                out.flush();
-
-            } catch (IOException e) {
-                logger.error("while handling data, IOException occured !!", e);
-                CommonUtil.socketStreamClose(socket, in, out);
-                logger.error("socket stream closed!!");
-                break;
-            }
+        } catch (IOException e) {
+            logger.error("while handling data, IOException occured !!", e);
+        } finally {
+            CommonUtil.socketStreamClose(socket, in, out);
+            logger.info("socket stream closed!!");
         }
+        
     }
 
     private int getHeader(final int HEADER_LENGTH) throws IOException {
@@ -79,6 +78,7 @@ public class SocketDataHandler implements Runnable {
         }
         
         String headerLenStr = new String(header, Charset.forName("EUC-KR"));
+        logger.info("header value : {}, header length : {} ",headerLenStr, headerLenStr.length() );
         return Integer.parseInt(headerLenStr);
     }
 
