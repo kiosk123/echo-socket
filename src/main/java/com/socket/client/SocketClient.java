@@ -14,6 +14,7 @@ public class SocketClient implements Runnable {
     private Socket client;
     private InputStream in;
     private OutputStream out;
+    private Scanner sc;
 
     public SocketClient(String host, int port) throws ApplicationException {
         try {
@@ -33,7 +34,7 @@ public class SocketClient implements Runnable {
     @Override
     public void run() {
         while (true) {
-            Scanner sc = new Scanner(System.in);
+            sc = new Scanner(System.in);
             System.out.print("input sending messsage : ");
             
             String sendMessage = sc.nextLine();
@@ -57,6 +58,7 @@ public class SocketClient implements Runnable {
                 System.out.println("While sending data to server, error occured!!!");
                 e.printStackTrace();
 
+                if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
                 if (in != null) {try { in.close(); } catch (IOException e2) {}}
                 if (out != null) {try { out.close(); } catch (IOException e2) {}}
                 if (client != null) {try { client.close(); } catch (IOException e2) {}}
@@ -81,7 +83,7 @@ public class SocketClient implements Runnable {
 
                 System.out.println("While recieveing data from server, error occured!!!");
                 e.printStackTrace();
-
+                if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
                 if (in != null) {try { in.close(); } catch (IOException e2) {}}
                 if (out != null) {try { out.close(); } catch (IOException e2) {}}
                 if (client != null) {try { client.close(); } catch (IOException e2) {}}
