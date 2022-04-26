@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.nio.charset.Charset;
 
 import com.common.CommonConstants;
+import com.common.CommonUtility;
 import com.socket.exception.ApplicationException;
 
 import org.slf4j.Logger;
@@ -37,12 +38,12 @@ public class SocketDataHandler implements Runnable {
             byte[] header = new byte[CommonConstants.CONTENT_HEADER_LENGTH];
 
             try {
-                int CONTENT_LENGTH = getHeader(header);
+                int contentLength = getHeader(header);
                 logger.info("************************ header length ************************");
-                logger.info("reading content length is {}", CONTENT_LENGTH);
+                logger.info("reading content length is {}", contentLength);
 
                 logger.info("************************ body conetent ************************");
-                String bodyContent = getBodyContent(CONTENT_LENGTH);
+                String bodyContent = getBodyContent(contentLength);
                 logger.info(bodyContent);
 
                 /**
@@ -64,23 +65,14 @@ public class SocketDataHandler implements Runnable {
                     out.flush();
                 } catch (IOException e) {
                     logger.error("While sending data from server to client, error occured!!!", e);
-    
-                    if (in != null) {try { in.close(); } catch (IOException e2) {}}
-                    if (out != null) {try { out.close(); } catch (IOException e2) {}}
-                    if (socket != null) {try { socket.close(); } catch (IOException e2) {}}
-    
+                    CommonUtility.socketStreamClose(socket, in, out);
                     logger.error("client finished!");
                     break;
                 }
 
-
             } catch (IOException e) {
                 logger.error("while proccessing data, IOException occured !!", e);
-                
-                if (in != null) {try { in.close(); } catch (IOException e2) {}}
-                if (out != null) {try { out.close(); } catch (IOException e2) {}}
-                if (socket != null) {try { socket.close(); } catch (IOException e2) {}}
-
+                CommonUtility.socketStreamClose(socket, in, out);
                 break;
             }
         }

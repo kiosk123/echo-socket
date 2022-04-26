@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Scanner;
 
 import com.common.CommonConstants;
+import com.common.CommonUtility;
 import com.socket.exception.ApplicationException;
 
 import org.slf4j.Logger;
@@ -16,11 +17,11 @@ import org.slf4j.LoggerFactory;
 public class SocketClient implements Runnable {
 
     private final static Logger logger = LoggerFactory.getLogger(SocketClient.class);
+    private final static String MESSAGE_CONSTANT = "00000008abcdefgh";
 
     private Socket client;
     private InputStream in;
     private OutputStream out;
-    private Scanner sc;
 
     public SocketClient(String host, int port) throws ApplicationException {
 
@@ -39,7 +40,8 @@ public class SocketClient implements Runnable {
 
     @Override
     public void run() {
-        String sendMessage = sc.nextLine();
+
+        String sendMessage = MESSAGE_CONSTANT;
         logger.info("sending message : " + sendMessage);
 
         byte[] contentBytes = sendMessage.getBytes(Charset.forName("EUC-KR"));
@@ -58,12 +60,7 @@ public class SocketClient implements Runnable {
             out.flush();
         } catch (IOException e) {
             logger.error("While sending data to server, error occured!!!", e);
-
-            if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
-            if (in != null) {try { in.close(); } catch (IOException e2) {}}
-            if (out != null) {try { out.close(); } catch (IOException e2) {}}
-            if (client != null) {try { client.close(); } catch (IOException e2) {}}
-
+            CommonUtility.socketStreamClose(client, in, out);
             logger.error("client finished!");
         }
 
@@ -82,14 +79,11 @@ public class SocketClient implements Runnable {
         } catch (IOException e) {
 
             logger.error("While recieveing data from server, error occured!!!", e);
-
-            if (sc != null) {try { sc.close(); } catch (IllegalStateException e2) {} }
-            if (in != null) {try { in.close(); } catch (IOException e2) {}}
-            if (out != null) {try { out.close(); } catch (IOException e2) {}}
-            if (client != null) {try { client.close(); } catch (IOException e2) {}}
-
+            CommonUtility.socketStreamClose(client, in, out);
             logger.error("client finished!");
         }
+
+        CommonUtility.socketStreamClose(client, in, out);
     }
 
 
