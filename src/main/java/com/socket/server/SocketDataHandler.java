@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.nio.charset.Charset;
 
 import com.common.CommonConstants;
-import com.common.CommonUtility;
+import com.common.CommonUtil;
 import com.socket.exception.ApplicationException;
 
 import org.slf4j.Logger;
@@ -65,14 +65,14 @@ public class SocketDataHandler implements Runnable {
                     out.flush();
                 } catch (IOException e) {
                     logger.error("While sending data from server to client, error occured!!!", e);
-                    CommonUtility.socketStreamClose(socket, in, out);
+                    CommonUtil.socketStreamClose(socket, in, out);
                     logger.error("client finished!");
                     break;
                 }
 
             } catch (IOException e) {
                 logger.error("while proccessing data, IOException occured !!", e);
-                CommonUtility.socketStreamClose(socket, in, out);
+                CommonUtil.socketStreamClose(socket, in, out);
                 break;
             }
         }

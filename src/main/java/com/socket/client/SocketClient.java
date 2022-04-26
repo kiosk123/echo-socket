@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Scanner;
 
 import com.common.CommonConstants;
-import com.common.CommonUtility;
+import com.common.CommonUtil;
 import com.socket.exception.ApplicationException;
 
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class SocketClient implements Runnable {
             out.flush();
         } catch (IOException e) {
             logger.error("While sending data to server, error occured!!!", e);
-            CommonUtility.socketStreamClose(client, in, out);
+            CommonUtil.socketStreamClose(client, in, out);
             logger.error("client finished!");
         }
 
@@ -79,11 +79,11 @@ public class SocketClient implements Runnable {
         } catch (IOException e) {
 
             logger.error("While recieveing data from server, error occured!!!", e);
-            CommonUtility.socketStreamClose(client, in, out);
+            CommonUtil.socketStreamClose(client, in, out);
             logger.error("client finished!");
         }
 
-        CommonUtility.socketStreamClose(client, in, out);
+        CommonUtil.socketStreamClose(client, in, out);
     }
 
 
