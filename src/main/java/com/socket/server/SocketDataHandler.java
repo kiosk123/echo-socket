@@ -35,10 +35,8 @@ public class SocketDataHandler implements Runnable {
     @Override
     public void run() {
         while (true) {
-            byte[] header = new byte[CommonConstants.CONTENT_HEADER_LENGTH];
-
             try {
-                int contentLength = getHeader(header);
+                int contentLength = getHeader(CommonConstants.CONTENT_HEADER_LENGTH);
                 logger.info("************************ header length ************************");
                 logger.info("reading content length is {}", contentLength);
 
@@ -52,7 +50,7 @@ public class SocketDataHandler implements Runnable {
                 byte[] contentBytes = bodyContent.getBytes(Charset.forName("EUC-KR"));
             
                 int headerLength = CommonConstants.CONTENT_HEADER_LENGTH;
-                byte[] headerBytes = String.format("%0" + headerLength + "d", contentBytes.length).getBytes();
+                byte[] headerBytes = String.format("%0" + headerLength + "d", contentBytes.length).getBytes(Charset.forName("EUC-KR"));
                 
                 int sendLength = headerBytes.length + contentBytes.length;
                 byte[] sendBytes = new byte[sendLength];
@@ -66,20 +64,18 @@ public class SocketDataHandler implements Runnable {
             } catch (IOException e) {
                 logger.error("while handling data, IOException occured !!", e);
                 CommonUtil.socketStreamClose(socket, in, out);
+                logger.error("socket stream closed!!");
                 break;
             }
         }
     }
 
-    private int getHeader(byte[] header) throws IOException {
-        int headerLength = in.read(header);
-        while (headerLength < CommonConstants.CONTENT_HEADER_LENGTH) {
-            int gapLength = CommonConstants.CONTENT_HEADER_LENGTH - headerLength;
-            byte[] buf = new byte[gapLength];
-            
-            int readLength = in.read(buf);
-            System.arraycopy(buf, 0, header, headerLength, readLength);
-            headerLength += readLength;
+    private int getHeader(final int HEADER_LENGTH) throws IOException {
+        byte[] header = new byte[HEADER_LENGTH];
+        int bytesRead = 0;
+
+        while (bytesRead < HEADER_LENGTH) {
+            bytesRead += in.read(header, bytesRead, HEADER_LENGTH + bytesRead);
         }
         
         String headerLenStr = new String(header, Charset.forName("EUC-KR"));
@@ -88,15 +84,12 @@ public class SocketDataHandler implements Runnable {
 
     private String getBodyContent(final int CONTENT_LENGTH) throws IOException {
         byte[] bodyContent = new byte[CONTENT_LENGTH];
-        int contentReadLen = in.read(bodyContent);
-        while (contentReadLen < CONTENT_LENGTH) {
-            int gapLength = CONTENT_LENGTH - contentReadLen;
-            byte[] buf = new byte[gapLength];
-            
-            int readLength = in.read(buf);
-            System.arraycopy(buf, 0, bodyContent, contentReadLen, readLength);
-            contentReadLen += readLength;
+        int bytesRead = 0;
+        
+        while (bytesRead < CONTENT_LENGTH) {
+            bytesRead += in.read(bodyContent, bytesRead, CONTENT_LENGTH + bytesRead);
         }
+
         String content = new String(bodyContent, Charset.forName("EUC-KR"));
         return content;
     }
