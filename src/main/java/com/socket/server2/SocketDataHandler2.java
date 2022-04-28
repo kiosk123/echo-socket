@@ -44,11 +44,13 @@ public class SocketDataHandler2 implements Runnable {
                 if (readLen < 0) {
                     break;
                 }
+
+                baos.write(buf, 0, readLen);
+
                 totalReadLen += readLen;
                 if (totalReadLen == CommonConstants.FULL_TEXT_LENGTH) {
                     break;
                 }
-                baos.write(buf, 0, readLen);
             }
             //TODO totalReadLen이 CommonConstants.FULL_TEXT_LENGTH같지 않을때 처리 고민 일단 간단한 에코만 2022-04-28
             byte[] echoBytes = baos.toByteArray();

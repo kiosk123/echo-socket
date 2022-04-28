@@ -16,7 +16,16 @@ import org.slf4j.LoggerFactory;
 public class SocketClient implements Runnable {
 
     private final static Logger logger = LoggerFactory.getLogger(SocketClient.class);
-    private final static String MESSAGE_CONSTANT = "00000008abcdefgh";
+    private final static String MESSAGE_CONSTANT;
+
+    static {
+        MESSAGE_CONSTANT = String.format("%08d", CommonConstants.CONTENT_LENGTH) 
+                        + CommonConstants.DEFAULT_UUID
+                        + CommonConstants.IF_SERVICE_CODE
+                        + CommonConstants.SYNC
+                        + CommonConstants.REQUEST
+                        + CommonConstants.DEFAULT_CONTENT;
+    }
 
     private Socket client;
     private InputStream in;
