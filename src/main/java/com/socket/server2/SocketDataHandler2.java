@@ -39,8 +39,7 @@ public class SocketDataHandler2 implements Runnable {
             while (true) {
                 byte[] buf = new byte[1024];
                 int readLen = in.read(buf);
-                logger.info("readLen : {}", readLen);
-                if (readLen < -1) {
+                if (readLen < 0) {
                     break;
                 }
                 baos.write(buf, 0, readLen);
