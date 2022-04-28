@@ -92,7 +92,14 @@ public class SocketClient implements Runnable {
             logger.info("******************* echo Sync code ***********************");
             String echoSyncCode = getSyncCode(CommonConstants.SYNC_CODE_LENGTH);
             logger.info("Sync Code : {}", echoSyncCode);
-
+            
+            logger.info("***************** echo Response code *********************");
+            String echoRespCode = getResponseCode(CommonConstants.REQ_AND_RESP_CODE_LENGTH);
+            logger.info("Response code : {}", echoRespCode);
+            
+            logger.info("******************** echo content ************************");
+            String echoContent = getContent(CommonConstants.CONTENT_LENGTH);
+            logger.info("Content : {}", echoContent);
             
         } catch (IOException e) {
 
@@ -159,19 +166,15 @@ public class SocketClient implements Runnable {
         String respcode = new String(buf, Charset.forName("EUC-KR"));
         return respcode;
     }
-
+    
     private String getContent(final int CONTENT_LENGTH) throws IOException {
-        byte[] bodyContent = new byte[CONTENT_LENGTH];
-        int contentReadLen = in.read(bodyContent);
-        while (contentReadLen < CONTENT_LENGTH) {
-            int gapLength = CONTENT_LENGTH - contentReadLen;
-            byte[] buf = new byte[gapLength];
-            
-            int readLength = in.read(buf);
-            System.arraycopy(buf, 0, bodyContent, contentReadLen, readLength);
-            contentReadLen += readLength;
+        int byteRead = 0;
+        byte[] buf = new byte[CONTENT_LENGTH];
+    
+        while (byteRead < CONTENT_LENGTH) {
+            byteRead += in.read(buf, byteRead, CONTENT_LENGTH - byteRead);
         }
-        String content = new String(bodyContent, Charset.forName("EUC-KR"));
+        String content = new String(buf, Charset.forName("EUC-KR"));
         return content;
     }
 }
