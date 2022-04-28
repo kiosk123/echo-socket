@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
+import com.common.CommonConstants;
 import com.common.CommonUtil;
 import com.socket.exception.ApplicationException;
 
@@ -36,14 +37,20 @@ public class SocketDataHandler2 implements Runnable {
     public void run() {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            int totalReadLen = 0;
             while (true) {
                 byte[] buf = new byte[1024];
                 int readLen = in.read(buf);
                 if (readLen < 0) {
                     break;
                 }
+                totalReadLen += readLen;
+                if (totalReadLen == CommonConstants.FULL_TEXT_LENGTH) {
+                    break;
+                }
                 baos.write(buf, 0, readLen);
             }
+            //TODO totalReadLen이 CommonConstants.FULL_TEXT_LENGTH같지 않을때 처리 고민 일단 간단한 에코만 2022-04-28
             byte[] echoBytes = baos.toByteArray();
             logger.info("************************ echo data ************************");
             logger.info(new String(echoBytes, Charset.forName("EUC-KR")));
