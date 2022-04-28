@@ -13,14 +13,14 @@ import com.socket.exception.ApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SocketDataHandler implements Runnable {
+public class SocketDataHandler2 implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(SocketDataHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(SocketDataHandler2.class);
     private Socket socket;
     private InputStream in;
     private OutputStream out;
 
-    public SocketDataHandler(Socket socket) throws ApplicationException {
+    public SocketDataHandler2(Socket socket) throws ApplicationException {
 
         this.socket = socket;
         try {
@@ -39,6 +39,7 @@ public class SocketDataHandler implements Runnable {
             while (true) {
                 byte[] buf = new byte[1024];
                 int readLen = in.read(buf);
+                logger.info("readLen : {}", readLen);
                 if (readLen < -1) {
                     break;
                 }

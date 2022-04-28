@@ -9,14 +9,15 @@ import com.socket.exception.ApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SocketServer implements Runnable {
+public class SocketServer2 implements Runnable {
 
-    private final static Logger logger = LoggerFactory.getLogger(SocketServer.class);
+    private final static Logger logger = LoggerFactory.getLogger(SocketServer2.class);
 
     ServerSocket serverSocket;
 
-    public SocketServer(int port) throws ApplicationException {
+    public SocketServer2(int port) throws ApplicationException {
         try {
+            logger.info("SocketServer2 initializing...");
             serverSocket = new ServerSocket(port);
             logger.info("creating server socket success. port number : {}", port);
         } catch (IOException e) {
@@ -33,7 +34,7 @@ public class SocketServer implements Runnable {
                 Socket socket = serverSocket.accept();
 
                 logger.info("created socket!");
-                SocketDataHandler handler = new SocketDataHandler(socket);
+                SocketDataHandler2 handler = new SocketDataHandler2(socket);
                 new Thread(handler).start();
 
             } catch (IOException e) {
