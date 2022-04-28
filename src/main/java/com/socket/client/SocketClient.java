@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
+import javax.swing.SpringLayout.Constraints;
+
 import com.common.CommonConstants;
 import com.common.CommonUtil;
 import com.socket.exception.ApplicationException;
@@ -60,7 +62,7 @@ public class SocketClient implements Runnable {
             sendMessage = MESSAGE_CONSTANT;
         }
 
-        logger.info("sending message : " + sendMessage);
+        logger.info("sending message : {}", sendMessage);
         byte[] sendBytes = sendMessage.getBytes(Charset.forName("EUC-KR"));
 
         try {
@@ -73,14 +75,25 @@ public class SocketClient implements Runnable {
         }
 
         try {
-            byte[] echoHeader = new byte[CommonConstants.CONTENT_HEADER_LENGTH];
-            int echoHeaderLength = getHeader(echoHeader);
             logger.info("****************** echo from server **********************");
-            
+            int echoHeader = getHeader(CommonConstants.CONTENT_HEADER_LENGTH);
+
             logger.info("****************** echo header length ********************");
-            logger.info("header length : {}", echoHeaderLength);
+            logger.info("header length : {}", echoHeader);
             
-            logger.info("****************** echo body content *********************");
+            logger.info("********************** echo GID **************************");
+            String echoGid = getGID(CommonConstants.GID_LENGTH);
+            logger.info("echo gid : {}", echoGid);
+
+            logger.info("**************** echo IF_SERVICE_CODE ********************");
+            String echoIfSvcCode = getIfServiceCode(CommonConstants.IF_SERVICE_CODE_LENGTH);
+            logger.info("Integration Service Id : {}", echoIfSvcCode);
+            
+            logger.info("******************* echo Sync code ***********************");
+            String echoSyncCode = getSyncCode(CommonConstants.SYNC_CODE_LENGTH);
+            logger.info("Sync Code : {}", echoSyncCode);
+
+            
         } catch (IOException e) {
 
             logger.error("While recieveing data from server, error occured!!!", e);
@@ -92,33 +105,62 @@ public class SocketClient implements Runnable {
     }
 
 
-    private int getHeader(byte[] header) throws IOException {
-        int headerLength = in.read(header);
-        while (headerLength < CommonConstants.CONTENT_HEADER_LENGTH) {
-            int gapLength = CommonConstants.CONTENT_HEADER_LENGTH - headerLength;
-            byte[] buf = new byte[gapLength];
-            
-            int readLength = in.read(buf);
-            System.arraycopy(buf, 0, header, headerLength, readLength);
-            headerLength += readLength;
+    private int getHeader(final int HEADER_LENGTH) throws IOException {
+        int byteRead = 0;
+        byte[] buf = new byte[HEADER_LENGTH];
+
+        while (byteRead < HEADER_LENGTH) {
+            byteRead += in.read(buf, byteRead, HEADER_LENGTH - byteRead);
         }
-        String headerLenStr = new String(header, Charset.forName("EUC-KR"));
-        return Integer.parseInt(headerLenStr);
+        String headerStr = new String(buf, Charset.forName("EUC-KR"));
+        return Integer.parseInt(headerStr);
+    }
+    
+    private String getGID(final int GID_LENGTH) throws IOException {
+        int byteRead = 0;
+        byte[] buf = new byte[GID_LENGTH];
+    
+        while (byteRead < GID_LENGTH) {
+            byteRead += in.read(buf, byteRead, GID_LENGTH - byteRead);
+        }
+        String gid = new String(buf, Charset.forName("EUC-KR"));
+        return gid;
     }
 
-    private String getGID() {
-        return null;
+    private String getIfServiceCode(final int IF_SERVICE_CODE_LENGTH) throws IOException {
+        int byteRead = 0;
+        byte[] buf = new byte[IF_SERVICE_CODE_LENGTH];
+    
+        while (byteRead < IF_SERVICE_CODE_LENGTH) {
+            byteRead += in.read(buf, byteRead, IF_SERVICE_CODE_LENGTH - byteRead);
+        }
+        String ifSvcCode = new String(buf, Charset.forName("EUC-KR"));
+        return ifSvcCode;
+    }
+    
+    private String getSyncCode(final int SYNC_CODE_LEN) throws IOException {
+        int byteRead = 0;
+        byte[] buf = new byte[SYNC_CODE_LEN];
+    
+        while (byteRead < SYNC_CODE_LEN) {
+            byteRead += in.read(buf, byteRead, SYNC_CODE_LEN - byteRead);
+        }
+        String syncCode = new String(buf, Charset.forName("EUC-KR"));
+        return syncCode;
+    }
+    
+    private String getResponseCode(final int REQ_AND_RESP_CODE_LENGTH) throws IOException {
+        int byteRead = 0;
+        byte[] buf = new byte[REQ_AND_RESP_CODE_LENGTH];
+    
+        while (byteRead < REQ_AND_RESP_CODE_LENGTH) {
+            byteRead += in.read(buf, byteRead, REQ_AND_RESP_CODE_LENGTH - byteRead);
+        }
+        String respcode = new String(buf, Charset.forName("EUC-KR"));
+        return respcode;
     }
 
-    private String getSyncCode() {
-        return null;
-    }
-
-    private String getResponseCode() {
-        return null;
-    }
-
-    private String getBodyContent(final int CONTENT_LENGTH) throws IOException {
+    private String getContent(final int CONTENT_LENGTH) throws IOException {
         byte[] bodyContent = new byte[CONTENT_LENGTH];
         int contentReadLen = in.read(bodyContent);
         while (contentReadLen < CONTENT_LENGTH) {

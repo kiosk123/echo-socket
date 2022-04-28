@@ -74,7 +74,7 @@ public class SocketDataHandler implements Runnable {
         int bytesRead = 0;
 
         while (bytesRead < HEADER_LENGTH) {
-            bytesRead += in.read(header, bytesRead, HEADER_LENGTH + bytesRead);
+            bytesRead += in.read(header, bytesRead, HEADER_LENGTH - bytesRead);
         }
         
         String headerLenStr = new String(header, Charset.forName("EUC-KR"));
@@ -87,7 +87,7 @@ public class SocketDataHandler implements Runnable {
         int bytesRead = 0;
         
         while (bytesRead < CONTENT_LENGTH) {
-            bytesRead += in.read(bodyContent, bytesRead, CONTENT_LENGTH + bytesRead);
+            bytesRead += in.read(bodyContent, bytesRead, CONTENT_LENGTH - bytesRead);
         }
 
         String content = new String(bodyContent, Charset.forName("EUC-KR"));
