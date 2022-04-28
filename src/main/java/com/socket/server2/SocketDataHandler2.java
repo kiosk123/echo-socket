@@ -54,6 +54,7 @@ public class SocketDataHandler2 implements Runnable {
             }
             //TODO totalReadLen이 CommonConstants.FULL_TEXT_LENGTH같지 않을때 처리 고민 일단 간단한 에코만 2022-04-28
             byte[] echoBytes = baos.toByteArray();
+            setResponseCode(echoBytes);
             logger.info("************************ echo data ************************");
             logger.info(new String(echoBytes, Charset.forName("EUC-KR")));
 
@@ -67,5 +68,12 @@ public class SocketDataHandler2 implements Runnable {
             logger.info("socket stream closed!!");
         }
         
+    }
+
+    private void setResponseCode(byte[] buf) {
+        final int RESP_COD_POS = CommonConstants.CONTENT_HEADER_LENGTH
+                            + CommonConstants.GID_LENGTH
+                            + CommonConstants.SYNC_CODE_LENGTH;
+        buf[RESP_COD_POS] = (byte)CommonConstants.RESPONSE_CODE.charAt(0);
     }
 }
