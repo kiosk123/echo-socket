@@ -1,8 +1,6 @@
 package com.socket.client;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.common.CommonConstants;
 import com.google.common.base.Strings;
 import com.socket.exception.ApplicationException;
 
@@ -16,8 +14,10 @@ public class SocketClientApp {
         try {
 
             SocketClient socketClient = null;
-            if (args.length > 0 && isValidMessageParam(args[0])) {
-                socketClient = new SocketClient("localhost", 7777, makeValidMessage(args[0]));
+            if (args.length == 2) {
+                socketClient = new SocketClient(args[0], Integer.parseInt(args[1]));
+            } else if (args.length == 3) {
+                socketClient = new SocketClient(args[0], Integer.parseInt(args[1]), createSendMessage(args[2]));
             } else {
                 socketClient = new SocketClient("localhost", 7777);
             }
@@ -25,26 +25,25 @@ public class SocketClientApp {
             new Thread(socketClient).start();
         } catch (ApplicationException e) {
             logger.error("application exception occured !!", e);
+        } catch (NumberFormatException e) {
+            logger.error("port value is not number : {}", args[1]);
         }
     }
 
-    private static boolean isValidMessageParam(String param) {
-        Pattern p = Pattern.compile("[0-9]{8}.+");
-        Matcher m = p.matcher(param);
-        return m.matches();
-    }
-
-    private static String makeValidMessage(String param) {
-        String lenStr = param.substring(0, 8);
-        int len = Integer.parseInt(lenStr);
-
-        String content = param.substring(8);
-        if (len > content.length()) {
-            content = Strings.padStart(content, len, ' ');
+    private static String createSendMessage(String msg) {
+        String ret = "";
+        if (msg.length() > CommonConstants.CONTENT_LENGTH) {
+            ret = msg.substring(0, CommonConstants.CONTENT_LENGTH);
         } else {
-            content = content.substring(0, len);
+            ret = Strings.padStart(msg, 10, ' ');
         }
-        String validMessage = lenStr + content;
-        return validMessage;
+        
+        ret = String.format("%08d", CommonConstants.BODY_LENGTH) 
+                        + CommonConstants.DEFAULT_UUID
+                        + CommonConstants.IF_SERVICE_CODE
+                        + CommonConstants.SYNC_CODE
+                        + CommonConstants.REQUEST_CODE
+                        + ret;
+        return ret;
     }
 }
