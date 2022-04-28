@@ -35,12 +35,12 @@ dependencies {
 }
 
 jar {
-    // baseName = "server-socket"
-    baseName = "client-socket"
+    baseName = "server-socket"
+    // baseName = "client-socket"
     manifest {
         attributes(
-                // 'Main-Class': 'com.socket.server2.SocketServerApp2'
-                'Main-Class': 'com.socket.client.SocketClientApp'
+                'Main-Class': 'com.socket.server2.SocketServerApp2'
+                // 'Main-Class': 'com.socket.client.SocketClientApp'
         )
     }
     from {
