@@ -38,7 +38,7 @@ jar {
     baseName = "server-socket"
     manifest {
         attributes(
-                'Main-Class': 'com.socket.server2.SocketServerApp'
+                'Main-Class': 'com.socket.server2.SocketServerApp2'
                 // 'Main-Class': 'com.socket.client.SocketClientApp'
         )
     }
