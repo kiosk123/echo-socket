@@ -71,9 +71,16 @@ public class SocketDataHandler2 implements Runnable {
     }
 
     private void setResponseCode(byte[] buf) {
+        logger.info("call setResponseCode method");
         final int RESP_COD_POS = CommonConstants.CONTENT_HEADER_LENGTH
                             + CommonConstants.GID_LENGTH
                             + CommonConstants.SYNC_CODE_LENGTH;
-        buf[RESP_COD_POS] = (byte)CommonConstants.RESPONSE_CODE.charAt(0);
+        
+        
+        byte respByteCode = (byte)CommonConstants.RESPONSE_CODE.charAt(0);
+        logger.info("resp byte code : {} ", respByteCode);
+
+        buf[RESP_COD_POS] = respByteCode;
+        logger.info("resp byte code in array : {}", buf[RESP_COD_POS]);
     }
 }
