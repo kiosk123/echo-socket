@@ -19,11 +19,11 @@ public class SocketClient implements Runnable {
     private final static String MESSAGE_CONSTANT;
 
     static {
-        MESSAGE_CONSTANT = String.format("%08d", CommonConstants.CONTENT_LENGTH) 
+        MESSAGE_CONSTANT = String.format("%08d", CommonConstants.BODY_LENGTH) 
                         + CommonConstants.DEFAULT_UUID
                         + CommonConstants.IF_SERVICE_CODE
-                        + CommonConstants.SYNC
-                        + CommonConstants.REQUEST
+                        + CommonConstants.SYNC_CODE
+                        + CommonConstants.REQUEST_CODE
                         + CommonConstants.DEFAULT_CONTENT;
     }
 
@@ -81,9 +81,6 @@ public class SocketClient implements Runnable {
             logger.info("header length : {}", echoHeaderLength);
             
             logger.info("****************** echo body content *********************");
-            String echoContent = getBodyContent(echoHeaderLength);
-            logger.info(echoContent);
-            System.out.println();
         } catch (IOException e) {
 
             logger.error("While recieveing data from server, error occured!!!", e);
@@ -107,6 +104,18 @@ public class SocketClient implements Runnable {
         }
         String headerLenStr = new String(header, Charset.forName("EUC-KR"));
         return Integer.parseInt(headerLenStr);
+    }
+
+    private String getGID() {
+        return null;
+    }
+
+    private String getSyncCode() {
+        return null;
+    }
+
+    private String getResponseCode() {
+        return null;
     }
 
     private String getBodyContent(final int CONTENT_LENGTH) throws IOException {
