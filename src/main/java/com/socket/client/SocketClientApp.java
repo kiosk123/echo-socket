@@ -1,6 +1,7 @@
 package com.socket.client;
 
 import com.common.CommonConstants;
+import com.common.CommonUtil;
 import com.google.common.base.Strings;
 import com.socket.exception.ApplicationException;
 
@@ -39,7 +40,7 @@ public class SocketClientApp {
         }
         
         ret = String.format("%08d", CommonConstants.BODY_LENGTH) 
-                        + CommonConstants.DEFAULT_UUID
+                        + CommonUtil.generateUUID()
                         + CommonConstants.IF_SERVICE_CODE
                         + CommonConstants.SYNC_CODE
                         + CommonConstants.REQUEST_CODE
